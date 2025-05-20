@@ -1,0 +1,527 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventory Barang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <style>
+        /* Scrollbar for tables */
+        
+         ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+    <header class="bg-gray-800 p-4 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-semibold font-serif">Inventory Management</h1>
+            <nav>
+                <button id="btnAdmin" class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition font-semibold">Admin</button>
+                <button id="btnUser" class="ml-4 px-4 py-2 bg-green-600 rounded hover:bg-green-700 transition font-semibold">User</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto p-6 w-full">
+        <!-- LOGIN screen -->
+        <section id="loginSection" class="max-w-md mx-auto bg-gray-800 rounded-md p-8 text-center font-serif">
+            <h2 class="text-3xl font-semibold mb-6">LOGIN</h2>
+            <form id="loginForm" class="space-y-4">
+                <input type="text" id="username" placeholder="Username" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                <input type="password" id="password" placeholder="Password" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 transition py-3 rounded font-semibold">
+          Login
+        </button>
+            </form>
+            <p class="mt-4 text-sm text-gray-400">Use "admin" or "user" as username, password: "123"</p>
+        </section>
+
+        <!-- Admin Dashboard -->
+        <section id="adminSection" class="hidden">
+            <h2 class="text-2xl font-semibold mb-6 font-serif">Admin Dashboard</h2>
+
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-2">Persediaan / Stok Barang</h3>
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Input Barang -->
+                    <div class="flex-1 bg-gray-800 rounded-md p-4">
+                        <h4 class="font-semibold mb-3">Input Barang</h4>
+                        <form id="inputBarangForm" class="space-y-3">
+                            <input type="text" id="namaBarang" placeholder="Nama Barang" class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                            <input type="number" id="stokBarang" placeholder="Stok Barang" min="1" class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 transition py-2 rounded font-semibold">
+                Tambah Barang
+              </button>
+                        </form>
+                    </div>
+
+                    <!-- Stok Barang -->
+                    <div class="flex-1 bg-gray-800 rounded-md p-4 overflow-x-auto max-h-[300px]">
+                        <h4 class="font-semibold mb-3">Stok Barang</h4>
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-600">
+                                    <th class="py-2 px-3">ID</th>
+                                    <th class="py-2 px-3">Nama Barang</th>
+                                    <th class="py-2 px-3">Stok</th>
+                                    <th class="py-2 px-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stokBarangTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rekapan barang masuk dan keluar Admin -->
+            <div class="bg-gray-800 rounded-md p-4 max-h-[300px] overflow-y-auto">
+                <h3 class="text-xl font-semibold mb-3">Rekapan barang masuk dan keluar Admin</h3>
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-600">
+                            <th class="py-2 px-3">Waktu</th>
+                            <th class="py-2 px-3">Nama Barang</th>
+                            <th class="py-2 px-3">Jumlah</th>
+                            <th class="py-2 px-3">Tipe</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rekapanAdminTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- User Dashboard -->
+        <section id="userSection" class="hidden">
+            <h2 class="text-2xl font-semibold mb-6 font-serif">User Dashboard</h2>
+
+            <!-- Daftar Barang -->
+            <div class="bg-gray-800 rounded-md p-4 mb-8 max-h-[300px] overflow-y-auto">
+                <h3 class="text-xl font-semibold mb-3">Daftar Barang</h3>
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-600">
+                            <th class="py-2 px-3">ID</th>
+                            <th class="py-2 px-3">Nama Barang</th>
+                            <th class="py-2 px-3">Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daftarBarangTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Pemesanan -->
+            <div class="bg-gray-800 rounded-md p-4 mb-8 max-w-md mx-auto">
+                <h3 class="text-xl font-semibold mb-3">Pemesanan</h3>
+                <form id="pemesananForm" class="space-y-3">
+                    <select id="pemesananBarang" class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <option value="" disabled selected>Pilih Barang</option>
+          </select>
+                    <input type="number" id="pemesananJumlah" placeholder="Jumlah" min="1" class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500" required />
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 transition py-2 rounded font-semibold">
+            Pesan
+          </button>
+                </form>
+            </div>
+
+            <!-- Rekapan barang pesanan user -->
+            <div class="bg-gray-800 rounded-md p-4 max-h-[300px] overflow-y-auto max-w-4xl mx-auto">
+                <h3 class="text-xl font-semibold mb-3">Rekapan barang pesanan user</h3>
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-600">
+                            <th class="py-2 px-3">Waktu</th>
+                            <th class="py-2 px-3">Nama Barang</th>
+                            <th class="py-2 px-3">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rekapanUserTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 p-4 text-center text-gray-400 text-sm">
+        &copy; 2024 Yamin Amin Juin
+    </footer>
+
+    <script>
+        // Data storage (simulate backend)
+        const barangList = [{
+            id: 1,
+            nama: "Pensil",
+            stok: 10
+        }, {
+            id: 2,
+            nama: "Buku Tulis",
+            stok: 15
+        }, {
+            id: 3,
+            nama: "Penghapus",
+            stok: 8
+        }, {
+            id: 4,
+            nama: "Pulpen",
+            stok: 20
+        }, {
+            id: 5,
+            nama: "Penggaris",
+            stok: 12
+        }, {
+            id: 6,
+            nama: "Spidol",
+            stok: 7
+        }, {
+            id: 7,
+            nama: "Kertas HVS",
+            stok: 25
+        }, {
+            id: 8,
+            nama: "Stapler",
+            stok: 5
+        }, {
+            id: 9,
+            nama: "Lem",
+            stok: 9
+        }, {
+            id: 10,
+            nama: "Map",
+            stok: 14
+        }, {
+            id: 11,
+            nama: "Kalkulator",
+            stok: 6
+        }, {
+            id: 12,
+            nama: "Tipe-X",
+            stok: 11
+        }, {
+            id: 13,
+            nama: "Binder",
+            stok: 4
+        }, {
+            id: 14,
+            nama: "Klip Kertas",
+            stok: 30
+        }, {
+            id: 15,
+            nama: "Amplop",
+            stok: 18
+        }, {
+            id: 16,
+            nama: "Meja Lipat",
+            stok: 3
+        }, {
+            id: 17,
+            nama: "Kursi",
+            stok: 7
+        }, {
+            id: 18,
+            nama: "Whiteboard Marker",
+            stok: 13
+        }, {
+            id: 19,
+            nama: "Penghapus Whiteboard",
+            stok: 10
+        }, {
+            id: 20,
+            nama: "Label",
+            stok: 16
+        }, ];
+
+        const rekapanAdmin = [];
+        const rekapanUser = [];
+
+        // Elements
+        const loginSection = document.getElementById("loginSection");
+        const adminSection = document.getElementById("adminSection");
+        const userSection = document.getElementById("userSection");
+
+        const btnAdmin = document.getElementById("btnAdmin");
+        const btnUser = document.getElementById("btnUser");
+
+        const loginForm = document.getElementById("loginForm");
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+
+        const inputBarangForm = document.getElementById("inputBarangForm");
+        const namaBarangInput = document.getElementById("namaBarang");
+        const stokBarangInput = document.getElementById("stokBarang");
+
+        const stokBarangTableBody = document.getElementById("stokBarangTableBody");
+        const rekapanAdminTableBody = document.getElementById("rekapanAdminTableBody");
+
+        const daftarBarangTableBody = document.getElementById("daftarBarangTableBody");
+        const pemesananForm = document.getElementById("pemesananForm");
+        const pemesananBarangSelect = document.getElementById("pemesananBarang");
+        const pemesananJumlahInput = document.getElementById("pemesananJumlah");
+        const rekapanUserTableBody = document.getElementById("rekapanUserTableBody");
+
+        // Current logged in user role
+        let currentRole = null;
+
+        // Utility to format date/time
+        function formatDateTime(date) {
+            return date.toLocaleString("id-ID", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+            });
+        }
+
+        // Render stok barang table (Admin)
+        function renderStokBarang() {
+            stokBarangTableBody.innerHTML = "";
+            barangList.forEach((barang) => {
+                const tr = document.createElement("tr");
+                tr.classList.add("border-b", "border-gray-700", "hover:bg-gray-700");
+                tr.innerHTML = `
+          <td class="py-2 px-3">${barang.id}</td>
+          <td class="py-2 px-3">${barang.nama}</td>
+          <td class="py-2 px-3">${barang.stok}</td>
+          <td class="py-2 px-3">
+            <button data-id="${barang.id}" class="btnEdit bg-yellow-500 hover:bg-yellow-600 text-black px-2 py-1 rounded mr-2">Edit</button>
+            <button data-id="${barang.id}" class="btnDelete bg-red-600 hover:bg-red-700 px-2 py-1 rounded">Hapus</button>
+          </td>
+        `;
+                stokBarangTableBody.appendChild(tr);
+            });
+
+            // Attach event listeners for edit and delete
+            document.querySelectorAll(".btnEdit").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    const barang = barangList.find((b) => b.id === id);
+                    if (!barang) return;
+                    const newNama = prompt("Edit Nama Barang:", barang.nama);
+                    if (newNama === null) return;
+                    const newStokStr = prompt("Edit Stok Barang:", barang.stok);
+                    if (newStokStr === null) return;
+                    const newStok = parseInt(newStokStr);
+                    if (newNama.trim() === "" || isNaN(newStok) || newStok < 0) {
+                        alert("Input tidak valid");
+                        return;
+                    }
+                    barang.nama = newNama.trim();
+                    barang.stok = newStok;
+                    renderStokBarang();
+                    renderDaftarBarang();
+                    renderPemesananOptions();
+                });
+            });
+
+            document.querySelectorAll(".btnDelete").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    const index = barangList.findIndex((b) => b.id === id);
+                    if (index === -1) return;
+                    if (confirm(`Hapus barang "${barangList[index].nama}"?`)) {
+                        barangList.splice(index, 1);
+                        renderStokBarang();
+                        renderDaftarBarang();
+                        renderPemesananOptions();
+                    }
+                });
+            });
+        }
+
+        // Render rekapan admin table
+        function renderRekapanAdmin() {
+            rekapanAdminTableBody.innerHTML = "";
+            rekapanAdmin.slice().reverse().forEach((rekap) => {
+                const tr = document.createElement("tr");
+                tr.classList.add("border-b", "border-gray-700");
+                tr.innerHTML = `
+          <td class="py-2 px-3">${rekap.waktu}</td>
+          <td class="py-2 px-3">${rekap.namaBarang}</td>
+          <td class="py-2 px-3">${rekap.jumlah}</td>
+          <td class="py-2 px-3">${rekap.tipe}</td>
+        `;
+                rekapanAdminTableBody.appendChild(tr);
+            });
+        }
+
+        // Render daftar barang (User)
+        function renderDaftarBarang() {
+            daftarBarangTableBody.innerHTML = "";
+            barangList.forEach((barang) => {
+                const tr = document.createElement("tr");
+                tr.classList.add("border-b", "border-gray-700", "hover:bg-gray-700");
+                tr.innerHTML = `
+          <td class="py-2 px-3">${barang.id}</td>
+          <td class="py-2 px-3">${barang.nama}</td>
+          <td class="py-2 px-3">${barang.stok}</td>
+        `;
+                daftarBarangTableBody.appendChild(tr);
+            });
+        }
+
+        // Render pemesanan select options
+        function renderPemesananOptions() {
+            pemesananBarangSelect.innerHTML = '<option value="" disabled selected>Pilih Barang</option>';
+            barangList.forEach((barang) => {
+                if (barang.stok > 0) {
+                    const option = document.createElement("option");
+                    option.value = barang.id;
+                    option.textContent = `${barang.nama} (Stok: ${barang.stok})`;
+                    pemesananBarangSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Render rekapan user table
+        function renderRekapanUser() {
+            rekapanUserTableBody.innerHTML = "";
+            rekapanUser.slice().reverse().forEach((rekap) => {
+                const tr = document.createElement("tr");
+                tr.classList.add("border-b", "border-gray-700");
+                tr.innerHTML = `
+          <td class="py-2 px-3">${rekap.waktu}</td>
+          <td class="py-2 px-3">${rekap.namaBarang}</td>
+          <td class="py-2 px-3">${rekap.jumlah}</td>
+        `;
+                rekapanUserTableBody.appendChild(tr);
+            });
+        }
+
+        // Show section by role
+        function showSection(role) {
+            currentRole = role;
+            loginSection.classList.add("hidden");
+            adminSection.classList.add("hidden");
+            userSection.classList.add("hidden");
+            if (role === "admin") {
+                adminSection.classList.remove("hidden");
+                renderStokBarang();
+                renderRekapanAdmin();
+            } else if (role === "user") {
+                userSection.classList.remove("hidden");
+                renderDaftarBarang();
+                renderPemesananOptions();
+                renderRekapanUser();
+            }
+        }
+
+        // Login form submit
+        loginForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const username = usernameInput.value.trim().toLowerCase();
+            const password = passwordInput.value.trim();
+            if ((username === "admin" || username === "user") && password === "123") {
+                showSection(username);
+                loginForm.reset();
+            } else {
+                alert("Username atau password salah");
+            }
+        });
+
+        // Admin input barang form submit
+        inputBarangForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const nama = namaBarangInput.value.trim();
+            const stok = parseInt(stokBarangInput.value);
+            if (nama === "" || isNaN(stok) || stok < 1) {
+                alert("Input tidak valid");
+                return;
+            }
+            // Check if barang already exists (case insensitive)
+            const existing = barangList.find(b => b.nama.toLowerCase() === nama.toLowerCase());
+            if (existing) {
+                existing.stok += stok;
+                rekapanAdmin.push({
+                    waktu: formatDateTime(new Date()),
+                    namaBarang: existing.nama,
+                    jumlah: stok,
+                    tipe: "Masuk",
+                });
+            } else {
+                const newId = barangList.length > 0 ? Math.max(...barangList.map(b => b.id)) + 1 : 1;
+                barangList.push({
+                    id: newId,
+                    nama,
+                    stok
+                });
+                rekapanAdmin.push({
+                    waktu: formatDateTime(new Date()),
+                    namaBarang: nama,
+                    jumlah: stok,
+                    tipe: "Masuk",
+                });
+            }
+            renderStokBarang();
+            renderRekapanAdmin();
+            renderDaftarBarang();
+            renderPemesananOptions();
+            inputBarangForm.reset();
+        });
+
+        // User pemesanan form submit
+        pemesananForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const barangId = parseInt(pemesananBarangSelect.value);
+            const jumlah = parseInt(pemesananJumlahInput.value);
+            if (isNaN(barangId) || isNaN(jumlah) || jumlah < 1) {
+                alert("Input tidak valid");
+                return;
+            }
+            const barang = barangList.find(b => b.id === barangId);
+            if (!barang) {
+                alert("Barang tidak ditemukan");
+                return;
+            }
+            if (barang.stok < jumlah) {
+                alert("Stok tidak cukup");
+                return;
+            }
+            barang.stok -= jumlah;
+            rekapanUser.push({
+                waktu: formatDateTime(new Date()),
+                namaBarang: barang.nama,
+                jumlah,
+            });
+            // Also add to admin rekapan keluar
+            rekapanAdmin.push({
+                waktu: formatDateTime(new Date()),
+                namaBarang: barang.nama,
+                jumlah,
+                tipe: "Keluar",
+            });
+            renderDaftarBarang();
+            renderRekapanUser();
+            renderRekapanAdmin();
+            renderStokBarang();
+            renderPemesananOptions();
+            pemesananForm.reset();
+        });
+
+        // Buttons to switch views (for demo)
+        btnAdmin.addEventListener("click", () => {
+            showSection("admin");
+        });
+        btnUser.addEventListener("click", () => {
+            showSection("user");
+        });
+
+        // On load show login
+        showSection(null);
+    </script>
+</body>
+
+</html>
